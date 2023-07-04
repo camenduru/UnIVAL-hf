@@ -64,39 +64,39 @@ use_fp16 = False
 
 checkpoint_path = 'checkpoints/unival_s2_hs/checkpoint1.pt'
 
-# Load ckpt & config for Image Captioning
-caption_overrides={"eval_cider":False, "beam":5, "max_len_b":22, "no_repeat_ngram_size":3, "seed":7, "unnormalized": False,
-           "bpe_dir":"utils/BPE", "video_model_path": None,}
+# # Load ckpt & config for Image Captioning
+# caption_overrides={"eval_cider":False, "beam":5, "max_len_b":22, "no_repeat_ngram_size":3, "seed":7, "unnormalized": False,
+#            "bpe_dir":"utils/BPE", "video_model_path": None,}
 
-caption_models, caption_cfg, caption_task = checkpoint_utils.load_model_ensemble_and_task(
-    utils.split_paths(checkpoint_path),
-    arg_overrides=caption_overrides
-)
+# caption_models, caption_cfg, caption_task = checkpoint_utils.load_model_ensemble_and_task(
+#     utils.split_paths(checkpoint_path),
+#     arg_overrides=caption_overrides
+# )
 
-# Load ckpt & config for Refcoco
-refcoco_overrides = {"bpe_dir":"utils/BPE", "video_model_path": None}
+# # Load ckpt & config for Refcoco
+# refcoco_overrides = {"bpe_dir":"utils/BPE", "video_model_path": None}
 
-refcoco_models, refcoco_cfg, refcoco_task = checkpoint_utils.load_model_ensemble_and_task(
-    utils.split_paths(checkpoint_path),
-    arg_overrides=refcoco_overrides
-)
-refcoco_cfg.common.seed = 7
-refcoco_cfg.generation.beam = 5
-refcoco_cfg.generation.min_len = 4
-refcoco_cfg.generation.max_len_a = 0
-refcoco_cfg.generation.max_len_b = 4
-refcoco_cfg.generation.no_repeat_ngram_size = 3
+# refcoco_models, refcoco_cfg, refcoco_task = checkpoint_utils.load_model_ensemble_and_task(
+#     utils.split_paths(checkpoint_path),
+#     arg_overrides=refcoco_overrides
+# )
+# refcoco_cfg.common.seed = 7
+# refcoco_cfg.generation.beam = 5
+# refcoco_cfg.generation.min_len = 4
+# refcoco_cfg.generation.max_len_a = 0
+# refcoco_cfg.generation.max_len_b = 4
+# refcoco_cfg.generation.no_repeat_ngram_size = 3
 
-# Load pretrained ckpt & config for VQA
-parser = options.get_generation_parser()
-input_args = ["", "--task=vqa_gen", "--beam=100", "--unnormalized", f"--path={checkpoint_path}", "--bpe-dir=utils/BPE"]
-args = options.parse_args_and_arch(parser, input_args)
-vqa_cfg = convert_namespace_to_omegaconf(args)
-vqa_task = tasks.setup_task(vqa_cfg.task)
-vqa_models, vqa_cfg = checkpoint_utils.load_model_ensemble(
-    utils.split_paths(vqa_cfg.common_eval.path),
-    task=vqa_task
-)
+# # Load pretrained ckpt & config for VQA
+# parser = options.get_generation_parser()
+# input_args = ["", "--task=vqa_gen", "--beam=100", "--unnormalized", f"--path={checkpoint_path}", "--bpe-dir=utils/BPE"]
+# args = options.parse_args_and_arch(parser, input_args)
+# vqa_cfg = convert_namespace_to_omegaconf(args)
+# vqa_task = tasks.setup_task(vqa_cfg.task)
+# vqa_models, vqa_cfg = checkpoint_utils.load_model_ensemble(
+#     utils.split_paths(vqa_cfg.common_eval.path),
+#     task=vqa_task
+# )
 
 # Load pretrained ckpt & config for Generic Interface
 parser = options.get_generation_parser()
@@ -110,17 +110,17 @@ general_models, general_cfg = checkpoint_utils.load_model_ensemble(
 )
 
 # move models to gpu
-move2gpu(caption_models, caption_cfg)
-move2gpu(refcoco_models, refcoco_cfg)
-move2gpu(vqa_models, vqa_cfg)
+# move2gpu(caption_models, caption_cfg)
+# move2gpu(refcoco_models, refcoco_cfg)
+# move2gpu(vqa_models, vqa_cfg)
 move2gpu(general_models, general_cfg)
 
-# Initialize generator
-caption_generator = caption_task.build_generator(caption_models, caption_cfg.generation)
-refcoco_generator = refcoco_task.build_generator(refcoco_models, refcoco_cfg.generation)
-vqa_generator = vqa_task.build_generator(vqa_models, vqa_cfg.generation)
-vqa_generator.zero_shot = True
-vqa_generator.constraint_trie = None
+# # Initialize generator
+# caption_generator = caption_task.build_generator(caption_models, caption_cfg.generation)
+# refcoco_generator = refcoco_task.build_generator(refcoco_models, refcoco_cfg.generation)
+# vqa_generator = vqa_task.build_generator(vqa_models, vqa_cfg.generation)
+# vqa_generator.zero_shot = True
+# vqa_generator.constraint_trie = None
 general_generator = general_task.build_generator(general_models, general_cfg.generation)
 
 # Construct image transforms
