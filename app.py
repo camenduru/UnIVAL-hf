@@ -104,9 +104,13 @@ input_args = ["", "--task=refcoco", "--beam=10", f"--path={checkpoint_path}", "-
 args = options.parse_args_and_arch(parser, input_args)
 general_cfg = convert_namespace_to_omegaconf(args)
 general_task = tasks.setup_task(general_cfg.task)
+
+overrides={"video_model_path": None, "resnet_model_path": None}
+
 general_models, general_cfg = checkpoint_utils.load_model_ensemble(
     utils.split_paths(general_cfg.common_eval.path),
-    task=general_task
+    task=general_task,
+    arg_overrides=overrides
 )
 
 # move models to gpu
