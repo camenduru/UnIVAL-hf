@@ -128,15 +128,20 @@ move2gpu(general_models, general_cfg)
 general_generator = general_task.build_generator(general_models, general_cfg.generation)
 
 # Construct image transforms
-caption_transform = construct_transform(caption_cfg.task.patch_image_size)
-refcoco_transform = construct_transform(refcoco_cfg.task.patch_image_size)
-vqa_transform = construct_transform(vqa_cfg.task.patch_image_size)
+# caption_transform = construct_transform(caption_cfg.task.patch_image_size)
+# refcoco_transform = construct_transform(refcoco_cfg.task.patch_image_size)
+# vqa_transform = construct_transform(vqa_cfg.task.patch_image_size)
 general_transform = construct_transform(general_cfg.task.patch_image_size)
 
+# # Text preprocess
+# bos_item = torch.LongTensor([caption_task.src_dict.bos()])
+# eos_item = torch.LongTensor([caption_task.src_dict.eos()])
+# pad_idx = caption_task.src_dict.pad()
+
 # Text preprocess
-bos_item = torch.LongTensor([caption_task.src_dict.bos()])
-eos_item = torch.LongTensor([caption_task.src_dict.eos()])
-pad_idx = caption_task.src_dict.pad()
+bos_item = torch.LongTensor([general_task.src_dict.bos()])
+eos_item = torch.LongTensor([general_task.src_dict.eos()])
+pad_idx = general_task.src_dict.pad()
 
 
 def get_symbols_to_strip_from_output(generator):
