@@ -13,7 +13,7 @@ deepspeed==0.9.5
 editdistance==0.6.2
 einops==0.4.1
 fairscale==0.4.13
-faiss==1.5.3
+faiss
 fastBPE==0.1.0
 fasttext==0.9.2
 flashlight==0.1.1
