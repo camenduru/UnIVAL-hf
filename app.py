@@ -290,11 +290,11 @@ def inference(image, task_type, instruction):
 inputs = [gr.inputs.Image(type='pil'), gr.inputs.Radio(choices=['Image Captioning',"Visual Question Answering", "Visual Grounding", "General"], type="value", default="Image Captioning", label="Task"), gr.inputs.Textbox(lines=1, label="Instruction")]
 outputs = [gr.outputs.Image(type='pil'), 'text']
 examples = [
-    ['examples/pokemons.jpeg', 'Image Captioning', None],
-    ['examples/cats.jpeg', 'Visual Question Answering', 'where are the cats?'],
-    ['examples/one_piece.jpeg', 'Visual Grounding', 'a man in a straw hat and a red dress'],
-    ['examples/three_houses.jpeg', 'General', 'which region does the text " a grey car " describe?'],
-    ['examples/three_houses.jpeg', 'General', 'what color is the left car?']
+    # ['examples/caption/soccer.jpg', 'Image Captioning', None],
+    # ['examples/sheep.jpg', 'Visual Question Answering', 'where are the cats?'],
+    # ['examples/one_piece.jpeg', 'Visual Grounding', 'a man in a straw hat and a red dress'],
+    ['examples/skateboard.jpeg', 'General', 'which region does the text " a grey car " describe?'],
+    ['examples/baseball.jpeg', 'General', 'what color is the left car?']
 ]
 
 title = "OFA"
