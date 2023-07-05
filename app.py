@@ -293,12 +293,12 @@ examples = [
     # ['examples/caption/soccer.jpg', 'Image Captioning', None],
     # ['examples/sheep.jpg', 'Visual Question Answering', 'where are the cats?'],
     # ['examples/one_piece.jpeg', 'Visual Grounding', 'a man in a straw hat and a red dress'],
-    ['examples/skateboard.jpeg', 'General', 'which region does the text " a grey car " describe?'],
-    ['examples/baseball.jpeg', 'General', 'what color is the left car?']
+    ['examples/caption/skateboard.jpeg', 'General', 'which region does the text " a grey car " describe?'],
+    ['examples/caption/baseball.jpeg', 'General', 'what color is the left car?']
 ]
 
-title = "OFA"
-description = "Gradio Demo for OFA: Unifying Architectures, Tasks, and Modalities Through a Simple Sequence-to-Sequence Learning Framework"
+title = "UnIVAL"
+description = "Gradio Demo for UnIVAL: "
 article = "<p style='text-align: center'><a href='http://arxiv.org/abs/2202.03052' target='_blank'>Paper</a> | <a href='https://github.com/OFA-Sys/OFA' target='_blank'>Github Repo</a></p>"
 
 io = gr.Interface(fn=inference, inputs=inputs, outputs=outputs,
