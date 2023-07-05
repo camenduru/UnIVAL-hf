@@ -294,7 +294,7 @@ examples = [
     # ['examples/sheep.jpg', 'Visual Question Answering', 'where are the cats?'],
     # ['examples/one_piece.jpeg', 'Visual Grounding', 'a man in a straw hat and a red dress'],
     ['examples/caption/skateboard.jpg', 'General', 'which region does the text " a grey car " describe?'],
-    ['examples/caption/baseball.jpg', 'General', 'what color is the left car?']
+    # ['examples/caption/baseball.jpg', 'General', 'what color is the left car?']
 ]
 
 title = "UnIVAL"
