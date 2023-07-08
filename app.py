@@ -186,12 +186,12 @@ def bin2coord(bins, w_resize_ratio, h_resize_ratio, cfg):
 
 def encode_text(text, length=None, append_bos=False, append_eos=False):
     line = [
-        caption_task.bpe.encode(' {}'.format(word.strip()))
+        general_task.bpe.encode(' {}'.format(word.strip()))
         if not word.startswith('<code_') and not word.startswith('<bin_') else word
         for word in text.strip().split()
     ]
     line = ' '.join(line)
-    s = caption_task.tgt_dict.encode_line(
+    s = general_task.tgt_dict.encode_line(
         line=line,
         add_if_not_exist=False,
         append_eos=False
