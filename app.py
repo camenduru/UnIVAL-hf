@@ -53,52 +53,64 @@ use_cuda = torch.cuda.is_available()
 # use fp16 only when GPU is available
 use_fp16 = False
 
-# # download checkpoints
-# os.system('wget https://ofa-silicon.oss-us-west-1.aliyuncs.com/checkpoints/caption_demo.pt; '
-#           'mkdir -p checkpoints; mv caption_demo.pt checkpoints/caption_demo.pt')
-# os.system('wget https://ofa-silicon.oss-us-west-1.aliyuncs.com/checkpoints/refcoco_demo.pt; '
-#           'mkdir -p checkpoints; mv refcoco_demo.pt checkpoints/refcoco_demo.pt')
-# os.system('wget https://ofa-silicon.oss-us-west-1.aliyuncs.com/checkpoints/general_demo.pt; '
-#           'mkdir -p checkpoints; mv general_demo.pt checkpoints/general_demo.pt')
+# download checkpoints
+os.system('mkdir -p checkpoints; ')
+
+os.system('wget https://data.isir.upmc.fr/unival/models/unival_s2_hs/checkpoint1.pt; '
+          'mkdir -p checkpoints/unival_s2_hs; mv checkpoint1.pt checkpoints/unival_s2_hs/')
+
+os.system('wget https://data.isir.upmc.fr/unival/models/unival_vqa/checkpoint_best.pt; '
+          'mkdir -p checkpoints/unival_vqa; mv checkpoint_best.pt checkpoints/unival_vqa/')
+os.system('wget https://data.isir.upmc.fr/unival/models/unival_caption_stage_1/checkpoint_best_test.pt; '
+          'mkdir -p checkpoints/unival_caption_stage_1; mv checkpoint_best_test.pt checkpoints/unival_caption_stage_1/')
+os.system('wget https://data.isir.upmc.fr/unival/models/unival_refcocog/checkpoint_best.pt; '
+          'mkdir -p checkpoints/unival_refcocog; mv checkpoint_best.pt checkpoints/unival_refcocog/')
 
 
-checkpoint_path = 'checkpoints/unival_s2_hs/checkpoint1.pt'
+# Load ckpt & config for Image Captioning
+checkpoint_path = 'checkpoints/unival_caption_stage_1/checkpoint_best_test.pt'
 
-# # Load ckpt & config for Image Captioning
-# caption_overrides={"eval_cider":False, "beam":5, "max_len_b":22, "no_repeat_ngram_size":3, "seed":7, "unnormalized": False,
-#            "bpe_dir":"utils/BPE", "video_model_path": None,}
+caption_overrides={"eval_cider":False, "beam":5, "max_len_b":22, "no_repeat_ngram_size":3, "seed":7, "unnormalized": False,
+           "bpe_dir":"utils/BPE", "video_model_path": None,}
 
-# caption_models, caption_cfg, caption_task = checkpoint_utils.load_model_ensemble_and_task(
-#     utils.split_paths(checkpoint_path),
-#     arg_overrides=caption_overrides
-# )
+caption_models, caption_cfg, caption_task = checkpoint_utils.load_model_ensemble_and_task(
+    utils.split_paths(checkpoint_path),
+    arg_overrides=caption_overrides
+)
 
-# # Load ckpt & config for Refcoco
-# refcoco_overrides = {"bpe_dir":"utils/BPE", "video_model_path": None}
+# Load ckpt & config for Refcoco
+checkpoint_path = 'checkpoints/unival_refcocog/checkpoint_best.pt'
 
-# refcoco_models, refcoco_cfg, refcoco_task = checkpoint_utils.load_model_ensemble_and_task(
-#     utils.split_paths(checkpoint_path),
-#     arg_overrides=refcoco_overrides
-# )
-# refcoco_cfg.common.seed = 7
-# refcoco_cfg.generation.beam = 5
-# refcoco_cfg.generation.min_len = 4
-# refcoco_cfg.generation.max_len_a = 0
-# refcoco_cfg.generation.max_len_b = 4
-# refcoco_cfg.generation.no_repeat_ngram_size = 3
+refcoco_overrides = {"bpe_dir":"utils/BPE", "video_model_path": None}
 
-# # Load pretrained ckpt & config for VQA
-# parser = options.get_generation_parser()
-# input_args = ["", "--task=vqa_gen", "--beam=100", "--unnormalized", f"--path={checkpoint_path}", "--bpe-dir=utils/BPE"]
-# args = options.parse_args_and_arch(parser, input_args)
-# vqa_cfg = convert_namespace_to_omegaconf(args)
-# vqa_task = tasks.setup_task(vqa_cfg.task)
-# vqa_models, vqa_cfg = checkpoint_utils.load_model_ensemble(
-#     utils.split_paths(vqa_cfg.common_eval.path),
-#     task=vqa_task
-# )
+refcoco_models, refcoco_cfg, refcoco_task = checkpoint_utils.load_model_ensemble_and_task(
+    utils.split_paths(checkpoint_path),
+    arg_overrides=refcoco_overrides
+)
+refcoco_cfg.common.seed = 7
+refcoco_cfg.generation.beam = 5
+refcoco_cfg.generation.min_len = 4
+refcoco_cfg.generation.max_len_a = 0
+refcoco_cfg.generation.max_len_b = 4
+refcoco_cfg.generation.no_repeat_ngram_size = 3
+
+
+# Load pretrained ckpt & config for VQA
+checkpoint_path = 'checkpoints/unival_vqa/checkpoint_best.pt'
+
+parser = options.get_generation_parser()
+input_args = ["", "--task=vqa_gen", "--beam=100", "--unnormalized", f"--path={checkpoint_path}", "--bpe-dir=utils/BPE"]
+args = options.parse_args_and_arch(parser, input_args)
+vqa_cfg = convert_namespace_to_omegaconf(args)
+vqa_task = tasks.setup_task(vqa_cfg.task)
+vqa_models, vqa_cfg = checkpoint_utils.load_model_ensemble(
+    utils.split_paths(vqa_cfg.common_eval.path),
+    task=vqa_task
+)
 
 # Load pretrained ckpt & config for Generic Interface
+checkpoint_path = 'checkpoints/unival_s2_hs/checkpoint1.pt'
+
 parser = options.get_generation_parser()
 input_args = ["", "--task=refcoco", "--beam=10", f"--path={checkpoint_path}", "--bpe-dir=utils/BPE", "--no-repeat-ngram-size=3", "--patch-image-size=384"]
 args = options.parse_args_and_arch(parser, input_args)
@@ -113,30 +125,26 @@ general_models, general_cfg = checkpoint_utils.load_model_ensemble(
     arg_overrides=overrides
 )
 
-# move models to gpu
-# move2gpu(caption_models, caption_cfg)
-# move2gpu(refcoco_models, refcoco_cfg)
-# move2gpu(vqa_models, vqa_cfg)
+move models to gpu
+move2gpu(caption_models, caption_cfg)
+move2gpu(refcoco_models, refcoco_cfg)
+move2gpu(vqa_models, vqa_cfg)
 move2gpu(general_models, general_cfg)
 
 # # Initialize generator
-# caption_generator = caption_task.build_generator(caption_models, caption_cfg.generation)
-# refcoco_generator = refcoco_task.build_generator(refcoco_models, refcoco_cfg.generation)
-# vqa_generator = vqa_task.build_generator(vqa_models, vqa_cfg.generation)
-# vqa_generator.zero_shot = True
-# vqa_generator.constraint_trie = None
+caption_generator = caption_task.build_generator(caption_models, caption_cfg.generation)
+refcoco_generator = refcoco_task.build_generator(refcoco_models, refcoco_cfg.generation)
+vqa_generator = vqa_task.build_generator(vqa_models, vqa_cfg.generation)
+vqa_generator.zero_shot = True
+vqa_generator.constraint_trie = None
 general_generator = general_task.build_generator(general_models, general_cfg.generation)
 
 # Construct image transforms
-# caption_transform = construct_transform(caption_cfg.task.patch_image_size)
-# refcoco_transform = construct_transform(refcoco_cfg.task.patch_image_size)
-# vqa_transform = construct_transform(vqa_cfg.task.patch_image_size)
+caption_transform = construct_transform(caption_cfg.task.patch_image_size)
+refcoco_transform = construct_transform(refcoco_cfg.task.patch_image_size)
+vqa_transform = construct_transform(vqa_cfg.task.patch_image_size)
 general_transform = construct_transform(general_cfg.task.patch_image_size)
 
-# # Text preprocess
-# bos_item = torch.LongTensor([caption_task.src_dict.bos()])
-# eos_item = torch.LongTensor([caption_task.src_dict.eos()])
-# pad_idx = caption_task.src_dict.pad()
 
 # Text preprocess
 bos_item = torch.LongTensor([general_task.src_dict.bos()])
