@@ -422,18 +422,18 @@ def inference(image, audio, video, task_type, instruction):
         instruction = 'which region does the text " {} " describe?'.format(instruction)
         transform = refcoco_transform
         cfg = refcoco_cfg
-    elif task_type == 'General':
+    elif task_type in ['General', 'General Video']:
         task = general_task
         models = general_models
         generator = general_generator
         transform = general_transform
         cfg = general_cfg
-    elif task_type == 'General Video':
-        task = video_general_task
-        models = video_general_models
-        generator = video_general_generator
-        transform = general_transform
-        cfg = video_general_cfg
+    # elif task_type == 'General Video':
+    #     task = general_task
+    #     models = video_general_models
+    #     generator = video_general_generator
+    #     transform = general_transform
+    #     cfg = video_general_cfg
     else:
         raise NotImplementedError
 
@@ -476,7 +476,13 @@ examples = [
     ['examples/images/ski.jpg', None, None, 'Visual Question Answering', 'what does the woman wearing black do?'],
     ['examples/images/banana.jpg', None, None, 'Visual Grounding', 'the detached banana'],
     ['examples/images/skateboard.jpg', None, None, 'General', 'which region does the text " a yellow bird " describe?'],
-    ['examples/images/baseball.jpg', None, None, 'General', 'what color is the left car?']
+    ['examples/images/baseball.jpg', None, None, 'General', 'what color is the left car?'],
+    [None, None, 'examples/videos/video7014.mp4', 'Video Captioning', None], 
+    [None, None, 'examples/videos/video7017.mp4', 'Video Captioning', None], 
+    [None, None, 'examples/videos/video7019.mp4', 'Video Captioning', None], 
+    [None, None, 'examples/videos/video7021.mp4', 'Video Captioning', None], 
+    [None, 'examples/audios/6cS0FsUM-cQ.wav', None, 'Audio Captioning', None],
+    [None, 'examples/audios/AJtNitYMa1I.wav', None, 'Audio Captioning', None],
 ]
 
 title = "UnIVAL"
