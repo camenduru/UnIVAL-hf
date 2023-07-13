@@ -389,7 +389,7 @@ def apply_half(t):
     return t
 
 
-def inference(image, task_type, instruction):
+def inference(image, audio, video, task_type, instruction):
     if task_type == 'Image Captioning':
         task = caption_task
         models = caption_models
