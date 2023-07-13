@@ -71,7 +71,7 @@ os.system('wget https://data.isir.upmc.fr/unival/models/unival_refcocog/checkpoi
 checkpoint_path = 'checkpoints/unival_caption_stage_1/checkpoint_best_test.pt'
 
 caption_overrides={"eval_cider":False, "beam":5, "max_len_b":22, "no_repeat_ngram_size":3, "seed":7, "unnormalized": False,
-           "bpe_dir":"utils/BPE", "video_model_path": None,}
+           "bpe_dir":"utils/BPE", "video_model_path": None, "video_model_path": None, "resnet_model_path": None}
 
 caption_models, caption_cfg, caption_task = checkpoint_utils.load_model_ensemble_and_task(
     utils.split_paths(checkpoint_path),
@@ -81,7 +81,7 @@ caption_models, caption_cfg, caption_task = checkpoint_utils.load_model_ensemble
 # Load ckpt & config for Refcoco
 checkpoint_path = 'checkpoints/unival_refcocog/checkpoint_best.pt'
 
-refcoco_overrides = {"bpe_dir":"utils/BPE", "video_model_path": None}
+refcoco_overrides = {"bpe_dir":"utils/BPE", "video_model_path": None, "resnet_model_path": None}
 
 refcoco_models, refcoco_cfg, refcoco_task = checkpoint_utils.load_model_ensemble_and_task(
     utils.split_paths(checkpoint_path),
@@ -98,6 +98,7 @@ refcoco_cfg.generation.no_repeat_ngram_size = 3
 # Load pretrained ckpt & config for VQA
 checkpoint_path = 'checkpoints/unival_vqa/checkpoint_best.pt'
 
+overrides={"video_model_path": None, "resnet_model_path": None}
 parser = options.get_generation_parser()
 input_args = ["", "--task=vqa_gen", "--beam=100", "--unnormalized", f"--path={checkpoint_path}", "--bpe-dir=utils/BPE"]
 args = options.parse_args_and_arch(parser, input_args)
@@ -105,7 +106,8 @@ vqa_cfg = convert_namespace_to_omegaconf(args)
 vqa_task = tasks.setup_task(vqa_cfg.task)
 vqa_models, vqa_cfg = checkpoint_utils.load_model_ensemble(
     utils.split_paths(vqa_cfg.common_eval.path),
-    task=vqa_task
+    task=vqa_task,
+    arg_overrides=overrides
 )
 
 # Load pretrained ckpt & config for Generic Interface
