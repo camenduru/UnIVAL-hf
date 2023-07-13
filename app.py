@@ -125,7 +125,7 @@ general_models, general_cfg = checkpoint_utils.load_model_ensemble(
     arg_overrides=overrides
 )
 
-move models to gpu
+# move models to gpu
 move2gpu(caption_models, caption_cfg)
 move2gpu(refcoco_models, refcoco_cfg)
 move2gpu(vqa_models, vqa_cfg)
