@@ -196,6 +196,9 @@ pad_idx = general_task.src_dict.pad()
 
 # Video process
 
+mean = [0.5, 0.5, 0.5]
+std = [0.5, 0.5, 0.5]
+
 type_transform = transforms.Lambda(lambda x: x.float().div(255.0))
 patch_video_resize_transform = transforms.Compose([
                     transforms.CenterCrop(video_caption_cfg.task.patch_frame_size),
