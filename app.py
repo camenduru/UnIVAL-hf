@@ -92,7 +92,7 @@ caption_models, caption_cfg, caption_task = checkpoint_utils.load_model_ensemble
 )
 
 # Load ckpt & config for Video Captioning
-checkpoint_path = 'checkpoints/unival_video_caption_stage_1/checkpoint_best.p'
+checkpoint_path = 'checkpoints/unival_video_caption_stage_1/checkpoint_best.pt'
 
 caption_overrides={"eval_cider":False, "beam":5, "max_len_b":22, "no_repeat_ngram_size":3, "seed":7, "unnormalized": False,
            "bpe_dir":"utils/BPE", "video_model_path": None, "video_model_path": None, "resnet_model_path": None}
