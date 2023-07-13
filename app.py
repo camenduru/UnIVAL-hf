@@ -169,7 +169,7 @@ move2gpu(refcoco_models, refcoco_cfg)
 move2gpu(vqa_models, vqa_cfg)
 move2gpu(general_models, general_cfg)
 move2gpu(video_caption_models, general_cfg)
-move2gpu(audio_general_models, general_cfg)
+move2gpu(audio_caption_models, general_cfg)
 
 # # Initialize generator
 caption_generator = caption_task.build_generator(caption_models, caption_cfg.generation)
@@ -198,7 +198,7 @@ pad_idx = general_task.src_dict.pad()
 
 type_transform = transforms.Lambda(lambda x: x.float().div(255.0))
 patch_video_resize_transform = transforms.Compose([
-                    transforms.CenterCrop(cfg.task.patch_frame_size),
+                    transforms.CenterCrop(video_caption_cfg.task.patch_frame_size),
                     type_transform, 
                     transforms.Normalize(mean=mean, std=std),
                 ])
@@ -222,8 +222,8 @@ def process_video(video_path, max_num_frames=16, num_frames=16, sample_type='ran
 
 def construct_video_sample(video_path):
     
-    patch_video = process_video(video_path, max_num_frames=16, num_frames=cfg.task.num_frames, sample_type=cfg.task.sample_type,)
-    patch_image = torch.zeros((3, cfg.task.patch_image_size, cfg.task.patch_image_size))   
+    patch_video = process_video(video_path, max_num_frames=16, num_frames=video_caption_cfg.task.num_frames, sample_type=video_caption_cfg.task.sample_type,)
+    patch_image = torch.zeros((3, video_caption_cfg.task.patch_image_size, video_caption_cfg.task.patch_image_size))   
     
     patch_type = torch.tensor([1])
     patch_mask = torch.tensor([True])
@@ -279,7 +279,7 @@ def construct_audio_sample(audio_path):
     
     
     patch_audio = process_audio(audio_path, sample_rate=48000, max_audio_len=480000, audio_cfg=AUDIO_CFG)
-    patch_image = torch.zeros((3, cfg.task.patch_image_size, cfg.task.patch_image_size))   
+    patch_image = torch.zeros((3, audio_caption_cfg.task.patch_image_size, audio_caption_cfg.task.patch_image_size))   
     
     patch_type = torch.tensor([2])
     patch_mask = torch.tensor([True])
