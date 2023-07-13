@@ -19,6 +19,12 @@ from tasks.mm_tasks.caption import CaptionTask
 from tasks.mm_tasks.refcoco import RefcocoTask
 from tasks.mm_tasks.vqa_gen import VqaGenTask
 
+# video
+from  data.video_utils import VIDEO_READER_FUNCS
+
+# audio
+import torchaudio
+from data.audio_utils import get_audio_features, int16_to_float32, float32_to_int16, AUDIO_CFG
 
 def move2gpu(models, cfg):
     for model in models:
@@ -48,6 +54,10 @@ def construct_transform(patch_image_size):
 tasks.register_task('caption', CaptionTask)
 tasks.register_task('refcoco', RefcocoTask)
 tasks.register_task('vqa_gen', VqaGenTask)
+tasks.register_task('video_caption', CaptionTask)
+tasks.register_task('audio_caption', CaptionTask)
+
+
 # turn on cuda if GPU is available
 use_cuda = torch.cuda.is_available()
 # use fp16 only when GPU is available
@@ -56,16 +66,19 @@ use_fp16 = False
 # download checkpoints
 os.system('mkdir -p checkpoints; ')
 
-os.system('wget https://data.isir.upmc.fr/unival/models/unival_s2_hs/checkpoint1.pt; '
-          'mkdir -p checkpoints/unival_s2_hs; mv checkpoint1.pt checkpoints/unival_s2_hs/')
+# os.system('wget https://data.isir.upmc.fr/unival/models/unival_s2_hs/checkpoint1.pt; '
+#           'mkdir -p checkpoints/unival_s2_hs; mv checkpoint1.pt checkpoints/unival_s2_hs/')
 
 os.system('wget https://data.isir.upmc.fr/unival/models/unival_vqa/checkpoint_best.pt; '
           'mkdir -p checkpoints/unival_vqa; mv checkpoint_best.pt checkpoints/unival_vqa/')
-os.system('wget https://data.isir.upmc.fr/unival/models/unival_caption_stage_1/checkpoint_best_test.pt; '
-          'mkdir -p checkpoints/unival_caption_stage_1; mv checkpoint_best_test.pt checkpoints/unival_caption_stage_1/')
-os.system('wget https://data.isir.upmc.fr/unival/models/unival_refcocog/checkpoint_best.pt; '
-          'mkdir -p checkpoints/unival_refcocog; mv checkpoint_best.pt checkpoints/unival_refcocog/')
-
+# os.system('wget https://data.isir.upmc.fr/unival/models/unival_caption_stage_1/checkpoint_best_test.pt; '
+#           'mkdir -p checkpoints/unival_caption_stage_1; mv checkpoint_best_test.pt checkpoints/unival_caption_stage_1/')
+# os.system('wget https://data.isir.upmc.fr/unival/models/unival_refcocog/checkpoint_best.pt; '
+#           'mkdir -p checkpoints/unival_refcocog; mv checkpoint_best.pt checkpoints/unival_refcocog/')
+# os.system('wget https://data.isir.upmc.fr/unival/models/unival_video_caption_stage_1/checkpoint_best.pt; '
+#           'mkdir -p checkpoints/unival_video_caption_stage_1; mv checkpoint_best.pt checkpoints/unival_video_caption_stage_1/')
+# os.system('wget https://data.isir.upmc.fr/unival/models/unival_audio_caption/checkpoint_best.pt; '
+#           'mkdir -p checkpoints/unival_audio_caption; mv checkpoint_best.pt checkpoints/unival_audio_caption/')
 
 # Load ckpt & config for Image Captioning
 checkpoint_path = 'checkpoints/unival_caption_stage_1/checkpoint_best_test.pt'
@@ -74,6 +87,29 @@ caption_overrides={"eval_cider":False, "beam":5, "max_len_b":22, "no_repeat_ngra
            "bpe_dir":"utils/BPE", "video_model_path": None, "video_model_path": None, "resnet_model_path": None}
 
 caption_models, caption_cfg, caption_task = checkpoint_utils.load_model_ensemble_and_task(
+    utils.split_paths(checkpoint_path),
+    arg_overrides=caption_overrides
+)
+
+# Load ckpt & config for Video Captioning
+checkpoint_path = 'checkpoints/unival_video_caption_stage_1/checkpoint_best.p'
+
+caption_overrides={"eval_cider":False, "beam":5, "max_len_b":22, "no_repeat_ngram_size":3, "seed":7, "unnormalized": False,
+           "bpe_dir":"utils/BPE", "video_model_path": None, "video_model_path": None, "resnet_model_path": None}
+
+video_caption_models, video_caption_cfg, video_caption_task = checkpoint_utils.load_model_ensemble_and_task(
+    utils.split_paths(checkpoint_path),
+    arg_overrides=caption_overrides
+)
+
+
+# Load ckpt & config for Audio Captioning
+checkpoint_path = 'checkpoints/unival_audio_caption/checkpoint_best.pt'
+
+caption_overrides={"eval_cider":False, "beam":5, "max_len_b":22, "no_repeat_ngram_size":3, "seed":7, "unnormalized": False,
+           "bpe_dir":"utils/BPE", "video_model_path": None, "video_model_path": None, "resnet_model_path": None,  "audio_model_path": None}
+
+audio_caption_models, audio_caption_cfg, audio_caption_task = checkpoint_utils.load_model_ensemble_and_task(
     utils.split_paths(checkpoint_path),
     arg_overrides=caption_overrides
 )
@@ -132,6 +168,8 @@ move2gpu(caption_models, caption_cfg)
 move2gpu(refcoco_models, refcoco_cfg)
 move2gpu(vqa_models, vqa_cfg)
 move2gpu(general_models, general_cfg)
+move2gpu(video_caption_models, general_cfg)
+move2gpu(audio_general_models, general_cfg)
 
 # # Initialize generator
 caption_generator = caption_task.build_generator(caption_models, caption_cfg.generation)
@@ -140,6 +178,9 @@ vqa_generator = vqa_task.build_generator(vqa_models, vqa_cfg.generation)
 vqa_generator.zero_shot = True
 vqa_generator.constraint_trie = None
 general_generator = general_task.build_generator(general_models, general_cfg.generation)
+
+video_caption_generator = caption_task.build_generator(video_caption_models, video_caption_cfg.generation)
+audio_caption_generator = caption_task.build_generator(audio_caption_models, audio_caption_cfg.generation)
 
 # Construct image transforms
 caption_transform = construct_transform(caption_cfg.task.patch_image_size)
@@ -153,6 +194,111 @@ bos_item = torch.LongTensor([general_task.src_dict.bos()])
 eos_item = torch.LongTensor([general_task.src_dict.eos()])
 pad_idx = general_task.src_dict.pad()
 
+# Video process
+
+type_transform = transforms.Lambda(lambda x: x.float().div(255.0))
+patch_video_resize_transform = transforms.Compose([
+                    transforms.CenterCrop(cfg.task.patch_frame_size),
+                    type_transform, 
+                    transforms.Normalize(mean=mean, std=std),
+                ])
+
+# video process
+video_reader = VIDEO_READER_FUNCS['decord'] 
+
+def process_video(video_path, max_num_frames=16, num_frames=16, sample_type='rand',):
+    
+    # video 
+    data_path = os.path.join(video_path)
+
+    frames, frame_indices, video_duration = video_reader(
+        data_path, num_frames, sample_type, max_num_frames=max_num_frames
+    )
+
+    patch_video = patch_video_resize_transform(frames)
+    patch_video = patch_video.permute(1, 0, 2, 3) # -> (C, T, h, w)
+
+    return patch_video.unsqueeze(0)
+
+def construct_video_sample(video_path):
+    
+    patch_video = process_video(video_path, max_num_frames=16, num_frames=cfg.task.num_frames, sample_type=cfg.task.sample_type,)
+    patch_image = torch.zeros((3, cfg.task.patch_image_size, cfg.task.patch_image_size))   
+    
+    patch_type = torch.tensor([1])
+    patch_mask = torch.tensor([True])
+    src_text = encode_text(" what does the video describe?", append_bos=True, append_eos=True).unsqueeze(0)
+    src_length = torch.LongTensor([s.ne(pad_idx).long().sum() for s in src_text])
+    sample = {
+        "id":np.array(['42']),
+        "net_input": {
+            "src_tokens": src_text,
+            "src_lengths": src_length,
+            "patch_videos": patch_video,
+            "patch_images": patch_image,
+            "patch_masks": patch_mask,
+            "patch_types": patch_type,
+        }
+    }
+    return sample
+
+#####
+
+# audio process
+mean = [0.5, 0.5, 0.5]
+std = [0.5, 0.5, 0.5]
+
+
+def process_audio(audio_path, sample_rate=48000, max_audio_len=480000, audio_cfg=AUDIO_CFG):
+
+    # audio 
+    data_path = audio_path
+
+
+
+    audio_data, orig_sr = torchaudio.load(data_path)
+    audio_data = torchaudio.transforms.Resample(orig_sr, sample_rate)(audio_data[0])
+
+    sample = {}
+
+    sample = get_audio_features(
+        sample, audio_data, max_audio_len, 
+        data_truncating='rand_trunc', 
+        data_filling='repeatpad',
+        audio_cfg=audio_cfg
+    )
+
+
+    waveform = sample['waveform']
+    patch_audio = waveform
+    
+    return patch_audio.unsqueeze(0)
+
+
+def construct_audio_sample(audio_path):
+    
+    
+    patch_audio = process_audio(audio_path, sample_rate=48000, max_audio_len=480000, audio_cfg=AUDIO_CFG)
+    patch_image = torch.zeros((3, cfg.task.patch_image_size, cfg.task.patch_image_size))   
+    
+    patch_type = torch.tensor([2])
+    patch_mask = torch.tensor([True])
+    src_text = encode_text(" what does the image describe?", append_bos=True, append_eos=True).unsqueeze(0)
+    src_length = torch.LongTensor([s.ne(pad_idx).long().sum() for s in src_text])
+    sample = {
+        "id":np.array(['42']),
+        "net_input": {
+            "src_tokens": src_text,
+            "src_lengths": src_length,
+            "patch_images": patch_image,
+            "patch_audios": patch_audio,
+            "patch_masks": patch_mask,
+            "patch_types": patch_type,
+        }
+    }
+    return sample
+    
+#####
 
 def get_symbols_to_strip_from_output(generator):
     if hasattr(generator, "symbols_to_strip_from_output"):
@@ -214,7 +360,7 @@ def encode_text(text, length=None, append_bos=False, append_eos=False):
         s = torch.cat([s, eos_item])
     return s
 
-
+# image
 def construct_sample(image: Image, instruction: str, transform):
     patch_image = transform(image).unsqueeze(0)
     patch_mask = torch.tensor([True])
@@ -248,6 +394,18 @@ def inference(image, task_type, instruction):
         instruction = 'what does the image describe?'
         transform = caption_transform
         cfg = caption_cfg
+    elif task_type == 'Video Captioning':
+        task = video_caption_task
+        models = video_caption_models
+        generator = video_caption_generator
+        instruction = 'what does the video describe?'
+        cfg = video_caption_cfg
+    elif task_type == 'Audio Captioning':
+        task = audio_caption_task
+        models = audio_caption_models
+        generator = audio_caption_generator
+        instruction = 'what does the audio describe?'
+        cfg = audio_caption_cfg
     elif task_type == 'Visual Question Answering':
         task = vqa_task
         models = vqa_models
@@ -267,11 +425,22 @@ def inference(image, task_type, instruction):
         generator = general_generator
         transform = general_transform
         cfg = general_cfg
+    elif task_type == 'General Video':
+        task = video_general_task
+        models = video_general_models
+        generator = video_general_generator
+        transform = general_transform
+        cfg = video_general_cfg
     else:
         raise NotImplementedError
 
     # Construct input sample & preprocess for GPU if cuda available
-    sample = construct_sample(image, instruction, transform)
+    if "Video" in task_type:
+        sample = construct_video_sample(video)
+    elif "Audio" in task_type:
+        sample = construct_audio_sample(audio)
+    else:
+        sample = construct_sample(image, instruction, transform)
     sample = utils.move_to_cuda(sample) if use_cuda else sample
     sample = utils.apply_to_sample(apply_half, sample) if use_fp16 else sample
 
@@ -297,7 +466,7 @@ def inference(image, task_type, instruction):
     else:
         return None, tokens
 
-inputs = [gr.inputs.Image(type='pil'), gr.inputs.Radio(choices=['Image Captioning',"Visual Question Answering", "Visual Grounding", "General"], type="value", default="Image Captioning", label="Task"), gr.inputs.Textbox(lines=1, label="Instruction")]
+inputs = [gr.inputs.Image(type='pil'), gr.Audio(source="upload", type="filepath"), gr.Video(source="upload", type="filepath"), gr.inputs.Radio(choices=['Image Captioning', 'Video Captioning', 'Audio Captioning', "Visual Question Answering", "Visual Grounding", "General", "General Video"], type="value", default="Image Captioning", label="Task"), gr.inputs.Textbox(lines=1, label="Instruction")]
 outputs = [gr.outputs.Image(type='pil'), 'text']
 examples = [
     # ['examples/caption/soccer.jpg', 'Image Captioning', None],
