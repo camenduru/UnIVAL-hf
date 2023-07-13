@@ -481,6 +481,7 @@ examples = [
     [None, None, 'examples/videos/video7017.mp4', 'Video Captioning', None], 
     [None, None, 'examples/videos/video7019.mp4', 'Video Captioning', None], 
     [None, None, 'examples/videos/video7021.mp4', 'Video Captioning', None], 
+    [None, None, 'examples/videos/video7021.mp4', 'General Video', "What is this sport?"], 
     [None, 'examples/audios/6cS0FsUM-cQ.wav', None, 'Audio Captioning', None],
     [None, 'examples/audios/AJtNitYMa1I.wav', None, 'Audio Captioning', None],
 ]
