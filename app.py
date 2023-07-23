@@ -473,15 +473,14 @@ inputs = [gr.inputs.Image(type='pil'), gr.Audio(source="upload", type="filepath"
 outputs = [gr.outputs.Image(type='pil'), 'text']
 examples = [
     ['examples/images/soccer.jpg', None, None, 'Image Captioning', None],
-    ['examples/images/ski.jpg', None, None, 'Visual Question Answering', 'what does the woman wearing black do?'],
+    ['examples/images/woman_inblack.jpg', None, None, 'Visual Question Answering', 'what does the woman wearing black do?'],
     ['examples/images/banana.jpg', None, None, 'Visual Grounding', 'the detached banana'],
     ['examples/images/skateboard.jpg', None, None, 'General', 'which region does the text " a yellow bird " describe?'],
-    ['examples/images/baseball.jpg', None, None, 'General', 'what color is the left car?'],
+    ['examples/images/baseball.jpg', None, None, 'General', 'what is this sport?'],
     [None, None, 'examples/videos/video7014.mp4', 'Video Captioning', None], 
     [None, None, 'examples/videos/video7017.mp4', 'Video Captioning', None], 
     [None, None, 'examples/videos/video7019.mp4', 'Video Captioning', None], 
     [None, None, 'examples/videos/video7021.mp4', 'Video Captioning', None], 
-    [None, None, 'examples/videos/video7021.mp4', 'General Video', "What is this sport?"], 
     [None, 'examples/audios/6cS0FsUM-cQ.wav', None, 'Audio Captioning', None],
     [None, 'examples/audios/AJtNitYMa1I.wav', None, 'Audio Captioning', None],
 ]
