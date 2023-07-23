@@ -175,8 +175,8 @@ move2gpu(audio_caption_models, general_cfg)
 caption_generator = caption_task.build_generator(caption_models, caption_cfg.generation)
 refcoco_generator = refcoco_task.build_generator(refcoco_models, refcoco_cfg.generation)
 vqa_generator = vqa_task.build_generator(vqa_models, vqa_cfg.generation)
-vqa_generator.zero_shot = True
-vqa_generator.constraint_trie = None
+# vqa_generator.zero_shot = True
+# vqa_generator.constraint_trie = None
 general_generator = general_task.build_generator(general_models, general_cfg.generation)
 
 video_caption_generator = caption_task.build_generator(video_caption_models, video_caption_cfg.generation)
