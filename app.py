@@ -175,8 +175,8 @@ move2gpu(audio_caption_models, general_cfg)
 caption_generator = caption_task.build_generator(caption_models, caption_cfg.generation)
 refcoco_generator = refcoco_task.build_generator(refcoco_models, refcoco_cfg.generation)
 vqa_generator = vqa_task.build_generator(vqa_models, vqa_cfg.generation)
-# vqa_generator.zero_shot = True
-# vqa_generator.constraint_trie = None
+vqa_generator.zero_shot = True
+vqa_generator.constraint_trie = None
 general_generator = general_task.build_generator(general_models, general_cfg.generation)
 
 video_caption_generator = caption_task.build_generator(video_caption_models, video_caption_cfg.generation)
@@ -469,11 +469,11 @@ def inference(image, audio, video, task_type, instruction):
     else:
         return None, tokens
 
-inputs = [gr.inputs.Image(type='pil'), gr.Audio(source="upload", type="filepath"), gr.Video(source="upload", type="filepath"), gr.inputs.Radio(choices=['Image Captioning', 'Video Captioning', 'Audio Captioning', "Visual Question Answering", "Visual Grounding", "General", "General Video"], type="value", default="Image Captioning", label="Task"), gr.inputs.Textbox(lines=1, label="Instruction")]
+inputs = [gr.inputs.Image(type='pil'), gr.Audio(source="upload", type="filepath"), gr.Video(source="upload", type="filepath"), gr.inputs.Radio(choices=['Image Captioning', 'Video Captioning', 'Audio Captioning', "Visual Grounding", "General", "General Video"], type="value", default="Image Captioning", label="Task"), gr.inputs.Textbox(lines=1, label="Instruction")]
 outputs = [gr.outputs.Image(type='pil'), 'text']
 examples = [
     ['examples/images/soccer.jpg', None, None, 'Image Captioning', None],
-    ['examples/images/woman_inblack.jpg', None, None, 'Visual Question Answering', 'what does the woman wearing black do?'],
+    # ['examples/images/woman_inblack.jpg', None, None, 'Visual Question Answering', 'what does the woman wearing black do?'],
     ['examples/images/banana.jpg', None, None, 'Visual Grounding', 'the detached banana'],
     ['examples/images/skateboard.jpg', None, None, 'General', 'which region does the text " a yellow bird " describe?'],
     ['examples/images/baseball.jpg', None, None, 'General', 'what is this sport?'],
