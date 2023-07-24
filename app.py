@@ -19,6 +19,9 @@ from tasks.mm_tasks.caption import CaptionTask
 from tasks.mm_tasks.refcoco import RefcocoTask
 from tasks.mm_tasks.vqa_gen import VqaGenTask
 
+
+from utils.zero_shot_utils import zero_shot_step
+
 # video
 from  data.video_utils import VIDEO_READER_FUNCS
 
@@ -175,8 +178,8 @@ move2gpu(audio_caption_models, general_cfg)
 caption_generator = caption_task.build_generator(caption_models, caption_cfg.generation)
 refcoco_generator = refcoco_task.build_generator(refcoco_models, refcoco_cfg.generation)
 vqa_generator = vqa_task.build_generator(vqa_models, vqa_cfg.generation)
-vqa_generator.zero_shot = True
-vqa_generator.constraint_trie = None
+# vqa_generator.zero_shot = True
+# vqa_generator.constraint_trie = None
 general_generator = general_task.build_generator(general_models, general_cfg.generation)
 
 video_caption_generator = caption_task.build_generator(video_caption_models, video_caption_cfg.generation)
@@ -449,8 +452,13 @@ def inference(image, audio, video, task_type, instruction):
 
     # Generate result
     with torch.no_grad():
-        hypos = task.inference_step(generator, models, sample)
-        tokens, bins, imgs = decode_fn(hypos[0][0]["tokens"], task.tgt_dict, task.bpe, generator)
+        if task_type == 'Visual Question Answering':
+            result, scores = zero_shot_step(vqa_task, generator, models, sample)
+            tokens = result[0]['answer']
+            bins = ''
+        else:
+            hypos = task.inference_step(generator, models, sample)
+            tokens, bins, imgs = decode_fn(hypos[0][0]["tokens"], task.tgt_dict, task.bpe, generator)
 
     if bins.strip() != '':
         w, h = image.size
