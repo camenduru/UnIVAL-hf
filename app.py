@@ -373,6 +373,7 @@ def construct_sample(image: Image, instruction: str, transform):
 
     instruction = encode_text(' {}'.format(instruction.lower().strip()), append_bos=True, append_eos=True).unsqueeze(0)
     instruction_length = torch.LongTensor([s.ne(pad_idx).long().sum() for s in instruction])
+    ref_dict = np.array([{'yes': 1.0}]) # just placeholder
     sample = {
         "id": np.array(['42']),
         "net_input": {
@@ -380,7 +381,9 @@ def construct_sample(image: Image, instruction: str, transform):
             "src_lengths": instruction_length,
             "patch_images": patch_image,
             "patch_masks": patch_mask,
-        }
+            
+        },
+        "ref_dict": ref_dict,
     }
     return sample
 
