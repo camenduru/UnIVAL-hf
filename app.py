@@ -480,11 +480,11 @@ def inference(image, audio, video, task_type, instruction):
     else:
         return None, tokens
 
-inputs = [gr.inputs.Image(type='pil'), gr.Audio(source="upload", type="filepath"), gr.Video(source="upload", type="filepath"), gr.inputs.Radio(choices=['Image Captioning', 'Visual Question Answering', 'Video Captioning', 'Audio Captioning', "Visual Grounding", "General", "General Video"], type="value", default="Image Captioning", label="Task"), gr.inputs.Textbox(lines=1, label="Instruction")]
+inputs = [gr.inputs.Image(type='pil'), gr.Audio(source="upload", type="filepath"), gr.Video(source="upload", type="filepath"), gr.inputs.Radio(choices=['Image Captioning', 'Video Captioning', 'Audio Captioning', "Visual Grounding", "General", "General Video"], type="value", default="Image Captioning", label="Task"), gr.inputs.Textbox(lines=1, label="Instruction")]
 outputs = [gr.outputs.Image(type='pil'), 'text']
 examples = [
     ['examples/images/soccer.jpg', None, None, 'Image Captioning', None],
-    ['examples/images/woman_inblack.jpg', None, None, 'Visual Question Answering', 'what does the woman wearing black do?'],
+    # ['examples/images/woman_inblack.jpg', None, None, 'Visual Question Answering', 'what does the woman wearing black do?'],
     ['examples/images/banana.jpg', None, None, 'Visual Grounding', 'the detached banana'],
     ['examples/images/skateboard.jpg', None, None, 'General', 'which region does the text " a yellow bird " describe?'],
     ['examples/images/baseball.jpg', None, None, 'General', 'what is this sport?'],
