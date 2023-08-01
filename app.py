@@ -486,7 +486,7 @@ examples = [
     ['examples/images/soccer.jpg', None, None, 'Image Captioning', None],
     # ['examples/images/woman_inblack.jpg', None, None, 'Visual Question Answering', 'what does the woman wearing black do?'],
     ['examples/images/banana.jpg', None, None, 'Visual Grounding', 'the detached banana'],
-    ['examples/images/skateboard.jpg', None, None, 'General', 'which region does the text " a yellow bird " describe?'],
+    ['examples/images/skateboard.jpg', None, None, 'Visual Grounding', 'which region does the text " a yellow bird " describe?'],
     ['examples/images/baseball.jpg', None, None, 'General', 'what is this sport?'],
     [None, None, 'examples/videos/video7014.mp4', 'Video Captioning', None], 
     [None, None, 'examples/videos/video7017.mp4', 'Video Captioning', None], 
