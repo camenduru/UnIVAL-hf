@@ -498,7 +498,7 @@ examples = [
 
 title = "UnIVAL"
 description = "Gradio Demo for UnIVAL: "
-article = "<p style='text-align: center'><a href='http://arxiv.org/abs/2202.' target='_blank'>Paper</a> | <a href='https://github.com/mshukor/UnIVAL' target='_blank'>Github Repo</a></p>"
+article = "<p style='text-align: center'><a href='https://arxiv.org/abs/2307.16184' target='_blank'>Paper</a> | <a href='https://github.com/mshukor/UnIVAL' target='_blank'>Github Repo</a></p>"
 
 io = gr.Interface(fn=inference, inputs=inputs, outputs=outputs,
                   title=title, description=description, article=article, examples=examples, cache_examples=False)
