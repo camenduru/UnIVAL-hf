@@ -1,7 +1,5 @@
 ftfy==6.0.3
 tensorboardX==2.4.1
-pycocotools==2.0.4
-pycocoevalcap==1.2
 torchvision
 pytorch_lightning
 einops
@@ -43,3 +41,7 @@ transformers==4.23.1
 
 av==10.0.0
 
+pycocotools
+pycocoevalcap
+#pycocotools==2.0.4
+#pycocoevalcap==1.2
